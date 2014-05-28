@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blackjack!</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/application.css">
+  </head>
+  <body style="padding-top: 50px;">
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav">
+              <li><a href="/">Start Over</a></li>
+              <% if session[:player_name] %>
+              <li><a href="/bet">New Game</a></li>
+              <% end %>
+            </ul>
+        </div>
+      </div>
+    </div>
+
+  <div class="container">
+    <%if @error %>
+      <div class="alert alert-error"><%=@error%></div>
+    <% end %>
+    <% if @success %>
+      <div class="alert alert-success"><%=@success%></div>
+    <% end %>
+      <%= yield %>
+  </div>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+<h3>Thanks for playing <%= session[:player_name] %></h3>
+<h4><%= session[:end_message] %></h4>
+<% session.clear %>
+<a href='/'>Start Over</a>
