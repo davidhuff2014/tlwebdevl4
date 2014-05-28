@@ -34,12 +34,12 @@
   <% session[:player_cards].each do |card| %>
     <%= card_image(card) %>
   <% end %>
+  <p><%= session[:player_name] %>, your bankroll is $<%= session[:player_bankroll] %>.
+  Bet amount for this round is $<%= session[:bet_amount] %>.</p>
 </div>
 
 <p>
   <% if @show_hit_or_stay_buttons %>
-  <%= session[:player_name] %>, your bankroll is $<%= session[:player_bankroll] %>.
-  Bet amount for this round is $<%= session[:bet_amount] %>.
   <p>What would <%= session[:player_name] %> like to do?</p>
   <h5><%= session[:player_name] %> has <%= calc_total(session[:player_cards]) %></h5>
     <form id='hit' method='post' action='/game/player/hit'>
