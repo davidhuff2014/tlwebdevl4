@@ -54,19 +54,23 @@ helpers do
   def winner!(msg)
     @play_again = true
     @how_hit_or_stay_buttons = false
-    @success = "<strong>#{session[:player_name]} has won!</strong> #{msg}"
+    @winner = "<strong>#{session[:player_name]} has won!</strong> #{msg}"
   end
 
   def loser!(msg)
     @play_again = true
     @show_hit_or_stay_buttons = false
-    @error = "<strong>#{session[:player_name]} loses.</strong> #{msg}"
+    @loser = "<strong>#{session[:player_name]} loses.</strong> #{msg}"
   end
 
   def tie!(msg)
     @play_again = true
     @show_hit_or_stay_buttons = false
-    @success = "<strong>It's a tie!</strong> #{msg}"
+    @winner = "<strong>It's a tie!</strong> #{msg}"
+  end
+
+  def stay!(msg)
+    @winner = "<strong>#{session[:player_name]} is staying!</strong> #{msg}"
   end
 
   def init_session_variables
@@ -134,7 +138,7 @@ post '/game/player/hit' do
     loser!("It looks like #{session[:player_name]} has busted at #{player_total}.")
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/player/stay' do
@@ -143,7 +147,10 @@ post '/game/player/stay' do
 end
 
 get '/game/dealer' do
-  @success = "#{session[:player_name]} has chosen to stay."
+  player_total = calc_total(session[:player_cards])
+  stay!("#{session[:player_name]} has chosen to stay at #{player_total}!")
+  # @success = "#{session[:player_name]} has chosen to stay."
+  # no longer caught with layout: false
 
   session[:turn] = 'dealer'
   @show_hit_or_stay_buttons = false
@@ -153,13 +160,14 @@ get '/game/dealer' do
   if dealer_total == BLACKJACK_AMT
     session[:player_bankroll] -= session[:bet_amount].to_i
     loser!('Dealer hit blackjack.')
+    @winner = nil
   elsif dealer_total >= DEALER_MIN_HIT
     redirect '/game/compare'
   else
     @show_dealer_hit_button = true
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/dealer/hit' do
@@ -187,7 +195,7 @@ get '/game/compare' do
     tie!("Both #{session[:player_name]} and the dealer stayed at #{player_total} ")
   end
 
-  erb :game
+  erb :game, layout: false
 end
 
 get '/bet' do
@@ -201,13 +209,14 @@ end
 post '/bet' do
   redirect '/game_over' if session[:player_bankroll].to_i <= 0
 
-  session[:bet_amount] = params[:bet_amount]
-  if session[:bet_amount].to_i > session[:player_bankroll].to_i
+  if params[:bet_amount].to_i > session[:player_bankroll].to_i
     @error = 'You are trying to bet more money than you have'
     halt erb(:bet)
-  elsif session[:bet_amount].to_i == 0 || session[:bet_amount] == ''
+  elsif params[:bet_amount].to_i == 0 || params[:bet_amount] == '' # could use .nil here
     @error = 'You must bet something!'
     halt erb(:bet)
+  else
+    session[:bet_amount] = params[:bet_amount]
   end
 
   redirect '/game'
