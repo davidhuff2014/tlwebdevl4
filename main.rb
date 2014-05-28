@@ -54,12 +54,14 @@ helpers do
   def winner!(msg)
     @play_again = true
     @how_hit_or_stay_buttons = false
+    session[:player_bankroll] += session[:bet_amount].to_i
     @winner = "<strong>#{session[:player_name]} has won!</strong> #{msg}"
   end
 
   def loser!(msg)
     @play_again = true
     @show_hit_or_stay_buttons = false
+    session[:player_bankroll] -= session[:bet_amount].to_i
     @loser = "<strong>#{session[:player_name]} loses.</strong> #{msg}"
   end
 
@@ -118,11 +120,10 @@ get '/game' do
   session[:player_cards] << session[:deck].pop
   session[:dealer_cards] << session[:deck].pop
 
-  player_total = calc_total(session[:player_cards])
-  if player_total == BLACKJACK_AMT
-    winner!("#{session[:player_name]} hit blackjack.")
-    redirect '/game/dealer'
-  end
+  # player_total = calc_total(session[:player_cards])
+  player_total = BLACKJACK_AMT
+  
+  @success = "#{session[:player_name]} hit blackjack." if player_total == BLACKJACK_AMT
 
   erb :game
 end
@@ -134,7 +135,6 @@ post '/game/player/hit' do
     winner!("#{session[:player_name]} hit blackjack.")
     redirect '/game/dealer'
   elsif player_total > BLACKJACK_AMT
-    session[:player_bankroll] -= session[:bet_amount].to_i
     loser!("It looks like #{session[:player_name]} has busted at #{player_total}.")
   end
 
@@ -158,7 +158,6 @@ get '/game/dealer' do
   dealer_total = calc_total(session[:dealer_cards])
 
   if dealer_total == BLACKJACK_AMT
-    session[:player_bankroll] -= session[:bet_amount].to_i
     loser!('Dealer hit blackjack.')
     @winner = nil
   elsif dealer_total >= DEALER_MIN_HIT
@@ -183,13 +182,10 @@ get '/game/compare' do
 
   if dealer_total > BLACKJACK_AMT
     winner!("#{session[:player_name]} stayed at #{player_total} and the dealer busted at #{dealer_total}.")
-    session[:player_bankroll] += session[:bet_amount].to_i
   elsif player_total < dealer_total
     loser!("#{session[:player_name]} stayed at #{player_total} and the dealer stayed at #{dealer_total}.")
-    session[:player_bankroll] -= session[:bet_amount].to_i
   elsif player_total > dealer_total
     winner!("#{session[:player_name]} stayed at #{player_total} and the dealer stayed at #{dealer_total}.")
-    session[:player_bankroll] += session[:bet_amount].to_i
 
   else
     tie!("Both #{session[:player_name]} and the dealer stayed at #{player_total} ")
