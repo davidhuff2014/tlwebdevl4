@@ -226,7 +226,7 @@ end
 
 get '/game_over' do
   session[:player_bankroll].to_i == 0 ? session[:end_message] = 'You are out of money!'  : ''
-  session[:player_bankroll].to_i > 0 ? session[:end_message] = 'Quitting so soon? You still have some money left?'  : ''
+  session[:player_bankroll].to_i > 0 ? session[:end_message] = 'Quitting so soon? You still have some money left!'  : ''
 
   erb :game_over
 end
