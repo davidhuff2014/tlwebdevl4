@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require 'rubygems'
 require 'sinatra'
-# require 'sinatra/reloader'
+require 'sinatra/reloader'
 # require 'pry'
 
 set :sessions, true
@@ -98,6 +98,7 @@ get '/new_player' do
 end
 
 post '/new_player' do
+  init_session_variables
   if params[:player_name].empty?
     @error = 'Name is required'
     halt erb(:new_player)
@@ -120,10 +121,14 @@ get '/game' do
   session[:player_cards] << session[:deck].pop
   session[:dealer_cards] << session[:deck].pop
 
-  # player_total = calc_total(session[:player_cards])
-  player_total = BLACKJACK_AMT
-  
-  @success = "#{session[:player_name]} hit blackjack." if player_total == BLACKJACK_AMT
+  player_total = calc_total(session[:player_cards])
+
+  if player_total == BLACKJACK_AMT
+    @success = "#{session[:player_name]} hit blackjack."
+    @show_hit_or_stay_buttons = false
+    session[:turn] = 'dealer'
+    @show_dealer_hit_button = true
+  end
 
   erb :game
 end
