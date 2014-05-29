@@ -98,6 +98,7 @@ get '/new_player' do
 end
 
 post '/new_player' do
+  session.clear
   init_session_variables
   if params[:player_name].empty?
     @error = 'Name is required'
@@ -224,8 +225,8 @@ post '/bet' do
 end
 
 get '/game_over' do
-  session[:player_bankroll].to_i == 0 ? session[:end_message] = 'You are out of money'  : ''
-  session[:player_bankroll].to_i >= 0 ? session[:end_message] = 'Quitting so soon?'     : ''
+  session[:player_bankroll].to_i == 0 ? session[:end_message] = 'You are out of money!'  : ''
+  session[:player_bankroll].to_i > 0 ? session[:end_message] = 'Quitting so soon? You still have some money left?'  : ''
 
   erb :game_over
 end
