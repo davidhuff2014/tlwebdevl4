@@ -5,4 +5,4 @@ gem 'sinatra'
 gem 'thin'
 gem 'pry'
 gem 'sinatra-contrib'
-gem 'rack-protection', '~> 1.5.5'
+gem 'rack-protection', '~> 1.5.5' #git-hub sent security alert
